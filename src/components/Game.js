@@ -30,42 +30,24 @@ const GameCanvas = () => {
     const animate = () => {
       context.clearRect(0, 0, canvas.width, canvas.height); 
 
-     
-      foodItems.forEach((food, index) => {
+      foodItems.forEach((food) => {
         context.beginPath();
         context.arc(food.x, food.y, 5, 0, Math.PI * 2); 
         context.fillStyle = 'yellow';
         context.fill();
         context.closePath();
-
-       
-        const dx = food.x - player.x;
-        const dy = food.y - player.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < player.radius + 5) { 
-        
-          setPlayer((prev) => ({
-            ...prev,
-            radius: prev.radius + 1, 
-          }));
-
-          setFoodItems((prev) => prev.filter((_, i) => i !== index));
-        }
       });
 
-      
       context.beginPath();
       context.arc(player.x, player.y, player.radius, 0, Math.PI * 2); 
       context.fillStyle = player.color;
       context.fill();
       context.closePath();
 
-     
       const dx = mousePosition.x - player.x;
       const dy = mousePosition.y - player.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
-      const speed = 0.5; 
+      const speed = 2; 
 
       if (distance > 1) { 
         const moveX = (dx / distance) * speed;
@@ -76,6 +58,22 @@ const GameCanvas = () => {
           y: prev.y + moveY,
         }));
       }
+
+      
+      setFoodItems((prevFoodItems) => {
+        return prevFoodItems.filter((food) => {
+          const foodDistance = Math.sqrt((food.x - player.x) ** 2 + (food.y - player.y) ** 2);
+          if (foodDistance <= player.radius + 5) { 
+            
+            setPlayer((prev) => ({
+              ...prev,
+              radius: prev.radius + 2, 
+            }));
+            return false; 
+          }
+          return true; 
+        });
+      });
 
       requestAnimationFrame(animate); 
     };
